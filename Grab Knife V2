@@ -1,0 +1,186 @@
+me = game.Players.LocalPlayers
+char = me.Character
+selected = false
+attacking = false
+hurt = false
+grabbed = nil
+mode = "kill"
+bloodcolors = {"Bright red", "Really red", "Crimson"}
+enabled = true
+enabled2 = true
+
+local breaksound = Instance.new("Sound")
+breaksound.SoundId = "http://www.roblox.com/asset/?id=2801263"
+breaksound.Parent = game.Workspace
+breaksound.Volume = 0.8
+	
+local killsound = Instance.new("Sound")
+killsound.SoundId = "http://www.roblox.com/asset/?id=2801263"
+killsound.Pitch = 0.65
+killsound.Parent = game.Workspace
+
+local drainsound = Instance.new("Sound")
+drainsound.SoundId = "http://www.roblox.com/asset/?id=2785493"
+drainsound.Pitch = 0.7
+
+
+function prop(part, parent, collide, tran, ref, x, y, z, color, anchor, form)
+part.Parent = parent
+part.formFactor = form
+part.CanCollide = collide
+part.Transparency = tran
+part.Reflectance = ref
+part.Size = Vector3.new(x,y,z)
+part.BrickColor = BrickColor.new(color)
+part.TopSurface = 0
+part.BottomSurface = 0
+part.Anchored = anchor
+part.Locked = true
+part:BreakJoints()
+end
+
+function weld(w, p, p1, a, b, c, x, y, z)
+w.Parent = p
+w.Part0 = p
+w.Part1 = p1
+w.C1 = CFrame.fromEulerAnglesXYZ(a,b,c) * CFrame.new(x,y,z)
+end
+
+function mesh(mesh, parent, x, y, z, type)
+mesh.Parent = parent
+mesh.Scale = Vector3.new(x, y, z)
+mesh.MeshType = type
+end
+
+function remgui()
+	for _,v in pairs(me.PlayerGui:GetChildren()) do
+		if v.Name == "Modeshow" then
+			v:remove()
+		end
+	end
+end
+
+function inform(text,delay)
+	remgui()
+	local sc = Instance.new("ScreenGui")
+	sc.Parent = me.PlayerGui
+	sc.Name = "Modeshow"
+	local bak = Instance.new("Frame",sc)
+	bak.BackgroundColor3 = Color3.new(1,1,1)
+	bak.Size = UDim2.new(0.94,0,0.1,0)
+	bak.Position = UDim2.new(0.03,0,0.037,0)
+	bak.BorderSizePixel = 0
+	local gi = Instance.new("TextLabel",sc)
+	gi.Size = UDim2.new(0.92,0,0.09,0)
+	gi.BackgroundColor3 = Color3.new(0,0,0)
+	gi.Position = UDim2.new(0.04,0,0.042,0)
+	gi.TextColor3 = Color3.new(1,1,1)
+	gi.FontSize = "Size14"
+	gi.Text = text
+	coroutine.resume(coroutine.create(function()
+		wait(delay)
+		sc:remove()
+	end))
+end
+
+if char:findFirstChild("Bricks",true) then
+	char:findFirstChild("Bricks",true):remove()
+end
+
+bricks = Instance.new("Model",me.Character)
+bricks.Name = "Bricks"
+
+--Parts-------------------------Parts-------------------------Parts-------------------------Parts----------------------
+
+rarm = char:findFirstChild("Right Arm")
+larm = char:findFirstChild("Left Arm")
+lleg = char:findFirstChild("Left Leg")
+torso = char:findFirstChild("Torso")
+hum = char:findFirstChild("Humanoid")
+rleg = char:findFirstChild("Right Leg")
+
+righthold = Instance.new("Part")
+prop(righthold, bricks, false, 1, 0, 0.1, 0.1, 0.1, "Mid gray", false, "Custom")
+w11 = Instance.new("Weld")
+weld(w11, rarm, righthold, 0, 0, 0, 0, 1, 0)
+
+lefthold = Instance.new("Part")
+prop(lefthold, bricks, false, 1, 0, 0.1, 0.1, 0.1, "Mid gray", false, "Custom")
+w12 = Instance.new("Weld")
+weld(w12, larm, lefthold, 0, 0, 0, 0, 1, 0)
+
+hold = Instance.new("Part")
+prop(hold, bricks, false, 0, 0, 0.2, 0.3, 0.3, "Black", false, "Custom")
+oh = Instance.new("Weld")
+weld(oh, torso, hold, -math.pi/-0.86, 1.5, math.rad(0), -0.35, -0.4, -0.5)
+
+knife = Instance.new("Part")
+knife.Material = "Wood"
+prop(knife, bricks, false, 0, 0, 0.25, 1.1, 0.3, "Pine Cone", false, "Custom")
+orr = Instance.new("Weld")
+weld(orr, hold, knife, 0, 0, 0, 0, 0.7, 0)
+ar = Instance.new("Weld")
+weld(ar, lefthold, nil, math.pi/2, 0, math.pi, 0, 0, 0)
+
+blade = Instance.new("Part")
+blade.Material = "Neon"
+prop(blade, bricks, false, 0, 0, 0.1, 2.5, 0.25, "Mid gray", false, "Custom")
+Instance.new("BlockMesh",blade).Scale = Vector3.new(0.3,1,1)
+w2 = Instance.new("Weld")
+weld(w2, knife, blade, 0, 0, 0, 0, -0.65, 0)
+
+blade2 = Instance.new("Part")
+blade2.Material = "Neon"
+prop(blade2, bricks, false, 0, 0, 0.1, 0.4, 0.25, "Mid gray", false, "Custom")
+local mew = Instance.new("SpecialMesh",blade2)
+mew.MeshType = "Wedge"
+mew.Scale = Vector3.new(0.3,1,1)
+w3 = Instance.new("Weld")
+weld(w3, blade, blade2, 0, 0, 0, 0, -1.45, 0)
+
+
+rb = Instance.new("Part")
+prop(rb, bricks, false, 1, 0, 0.1, 0.1, 0.1, "Bright red", false, "Custom")
+w13 = Instance.new("Weld")
+weld(w13, torso, rb, 0, 0, 0, -1.5, -0.5, 0)
+
+lb = Instance.new("Part")
+prop(lb, bricks, false, 1, 0, 0.1, 0.1, 0.1, "Bright red", false, "Custom")
+w14 = Instance.new("Weld")
+weld(w14, torso, lb, 0, 0, 0, 1.5, -0.5, 0)
+
+rw = Instance.new("Weld")
+weld(rw, rb, nil, 0, 0, 0, 0, 0.5, 0)
+
+lw = Instance.new("Weld")
+weld(lw, lb, nil, 0, 0, 0, 0, 0.5, 0)
+
+grabweld = nil
+platlol = nil
+lolhum = nil
+
+function touch(h)
+	if hurt then
+		if grabbed == nil then
+			local hu = h.Parent:findFirstChild("Humanoid")
+			local head = h.Parent:findFirstChild("Head")
+			local torz = h.Parent:findFirstChild("Torso")
+			if hu ~= nil and head ~= nil and torz ~= nil and h.Parent.Name ~= name then
+				if hu.Health > 0 then
+				grabbed = torz
+				hu.PlatformStand = true
+				local w = Instance.new("Weld")
+				weld(w,righthold,grabbed,math.pi/2,0.2,0,0.7,-0.9,-0.6)
+				grabweld = w
+				lolhum = hu
+				local lolxd = true
+				platlol = lolxd
+				hu.Changed:connect(function(prop)
+					if prop == "PlatformStand" and platlol then
+						hu.PlatformStand = true
+					end
+				end)
+				end
+			end
+		end
+	end
