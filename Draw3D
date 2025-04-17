@@ -1,0 +1,286 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+
+	-- Initializing variables
+	local user = Players.LocalPlayer
+	local uname = user.Name
+	local guis = user.PlayerGui
+	local pack = user.Backpack
+
+	local keyDowns = {}
+	local freeKeys = {}
+	local shortcuts = {}
+
+	_G.mine = _G.mine or {}
+
+	local name = 'Draw3D'
+	local url = 'http://www.roblox.com/asset/?id=%d'
+
+	local iconNormal = url:format(96578285)
+	local iconOnDown = url:format(96584484)
+
+	local ver = 0
+	local drawPixel = 0.10
+	_G.drawLimit = _G.drawLimit or 1000
+	_G.drawColor = _G.drawColor or Color3.new()
+
+	-- Utility functions
+	local destroy = game.Destroy
+	local find = game.FindFirstChild
+	local new = Instance.new
+
+	local with = function(c)
+		return function(p)
+			local o = type(c) == 'string' and new(c) or c
+			local x = p.Parent
+			p.Parent = nil
+			for i, v in next, p do
+				o[i] = v
+			end
+			if x then
+				o.Parent = x
+			end
+			return o
+		end
+	end
+
+	-- Get place for drawing
+	local getPlace = function()
+		if find(workspace, 'draw') == nil then
+			new('Model', workspace).Name = 'draw'
+		end
+		if find(workspace.draw, uname) == nil then
+			new('Model', workspace.draw).Name = uname
+		end
+		return workspace.draw[uname]
+	end
+
+	-- Draw line function
+	local drawLine = function(start, target)
+		local gui = with('BlockMesh') {
+			Parent = with('Part') {
+				CFrame = CFrame.new(start, target) * CFrame.new(0, 0, -(start - target).Magnitude / 2),
+				Size = Vector3.new(drawPixel, drawPixel, (start - target).Magnitude + 0.325 * drawPixel),
+				Parent = getPlace(),
+				Color = _G.drawColor,
+				BottomSurface = 0,
+				Anchored = true,
+				TopSurface = 0,
+				FormFactor = 3,
+				Name = name
+			}
+		}.Parent
+		table.insert(_G.mine, gui)
+		return gui
+	end
+
+	-- Mouse event functions
+	local drawing = false
+
+	local onDown = function()
+		if drawing then return nil end
+		if selectGui.Adornee then
+			destroy(selectGui.Adornee)
+		end
+
+		drawing = true
+		mouse.Icon = iconOnDown
+		ver = ver + 1
+
+		local cVer, start, target = ver, mouse.Hit.p
+
+		local group = {}
+		repeat
+			wait(0.02)
+
+			if mouse.Target and mouse.Target.Name ~= name and mouse.Hit.p ~= start then
+				target = mouse.Hit.p
+				table.insert(group, drawLine(start, target))
+				start = target
+			end
+		until ver ~= cVer
+		drawing = false
+
+		local groupM = new('Model', getPlace())
+		for _, v in next, group do
+			if v:IsDescendantOf(workspace) then
+				v.Parent = groupM
+			end
+		end
+		if next(groupM:GetChildren()) == nil then
+			destroy(groupM)
+		end
+	end
+
+	local onUp = function()
+		mouse.Icon = iconNormal
+		ver = ver + 1
+	end
+
+	local onKeyDown = function(k)
+		if freeKeys[k] == false then
+			return false
+		end
+		freeKeys[k] = false
+		wait(0.01)
+		if keyDowns[k] then
+			keyDowns[k]()
+		elseif shortcuts[k] then
+			shortcuts[k]()
+		end
+	end
+
+	local onKeyUp = function(k)
+		freeKeys[k] = true
+	end
+
+	local onMove = function()
+		-- Mouse move behavior can be added here
+	end
+
+	-- Selecting and Deselecting tool
+	local onSelect = function(lmouse)
+		frame.Visible = true
+		mouse = lmouse
+		mouse.Icon = iconNormal
+		mouse.Button1Down:Connect(onDown)
+		mouse.KeyDown:Connect(onKeyDown)
+		mouse.Button1Up:Connect(onUp)
+		mouse.KeyUp:Connect(onKeyUp)
+		mouse.Move:Connect(onMove)
+	end
+
+	local onDeselect = function()
+		ver = ver + 1
+		frame.Visible = false
+		selectGui.Adornee = nil
+		mouse.Icon = iconNormal
+		for i, v in next, freeKeys do
+			freeKeys[i] = true
+		end
+	end
+
+	-- Add buttons
+	local addButton = function(title, shortcut, fun)
+		with('TextButton') {
+			Text = string.format(' %s (%s)', title, shortcut),
+			TextXAlignment = 0,
+			Parent = frame
+		}.MouseButton1Up:Connect(fun)
+
+		shortcuts[shortcut] = fun
+
+		local c = #frame:GetChildren()
+		for i, v in next, frame:GetChildren() do
+			v.Position = UDim2.new(0, 0, 0, 20 * (i - 1))
+			v.Size = UDim2.new(1, 0, 0, 20)
+		end
+
+		frame.Position = UDim2.new(1, -152, 0.5, -c * 10)
+		frame.Size = UDim2.new(0, 150, 0, c * 20)
+	end
+
+	-- Cleanup previous instances
+	for _, v in next, {guis, pack} do
+		pcall(function()
+			repeat until destroy(v[name])
+		end)
+	end
+
+	-- Tool setup
+	local tool = with('HopperBin') {
+		Parent = pack,
+		Name = name
+	}
+	tool.Deselected:Connect(onDeselect)
+	tool.Selected:Connect(onSelect)
+
+	-- GUI Setup
+	local screen = with('ScreenGui') {
+		Parent = guis,
+		Name = name
+	}
+	frame = with('Frame') {
+		Parent = screen,
+		Visible = false
+	}
+	clframe = with('Frame') {
+		Position = UDim2.new(0.5, -50, 0.5, -50),
+		Size = UDim2.new(0, 100, 0, 100),
+		Visible = false,
+		Parent = screen
+	}
+	selectGui = with('SelectionBox') {
+		Parent = screen
+	}
+
+	-- Color picker setup
+	local c = 0
+	for y = 0, 7 do
+		for x = 0, 7 do
+			local color = BrickColor.Palette(c).Color
+			with('ImageButton') {
+				Position = UDim2.new(0.125 * x, 0, 0.125 * y, 0),
+				Size = UDim2.new(0.125, 0, 0.125, 0),
+				BackgroundColor3 = color,
+				Parent = clframe
+			}.MouseButton1Up:Connect(function()
+				clframe.Visible = false
+				_G.drawColor = color
+			end)
+			c = c + 1
+		end
+	end
+
+	-- Add buttons to GUI
+	addButton('Color', 'c', function()
+		clframe.Visible = true
+	end)
+
+	addButton('Remove your draws', 'r', function()
+		repeat
+			destroy(_G.mine[1])
+			table.remove(_G.mine, 1)
+			wait(0.01)
+		until nil
+	end)
+
+	addButton('Remove global draws', 'k', function()
+		destroy(workspace.draw)
+		while _G.mine[1] do
+			destroy(_G.mine[1])
+			table.remove(_G.mine, 1)
+		end
+	end)
+
+	addButton('Remove selected', 'x', function()
+		repeat
+			if find(workspace, 'draw') then
+				local dt = mouse.Target
+				if dt and dt:IsDescendantOf(workspace.draw) then
+					selectGui.Adornee = dt.Parent
+				else
+					selectGui.Adornee = nil
+				end
+			else
+				selectGui.Adornee = nil
+			end
+			wait(0.01)
+		until freeKeys.x
+		selectGui.Adornee = nil
+	end)
+
+	-- Cleanup process
+	repeat
+		wait(0.01)
+		if next(_G.mine) and #_G.mine > _G.drawLimit then
+			destroy(_G.mine[1])
+			table.remove(_G.mine, 1)
+		end
+	until script.Parent == nil or tool.Parent == nil
+
+	script.Disabled = true
+	destroy(screen)
+
+	-- Dresmor Alakazard --
+
