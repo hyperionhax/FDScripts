@@ -1,0 +1,122 @@
+center = Vector3.new(0, 75, 0)
+shrinkRate = 0.75
+minSize = 0.1
+
+hint = Instance.new("Hint", workspace)
+for i = 5,1,-1 do
+    hint.Text = "Security Breach in " .. i .. " Seconds [Advertise Here]"
+    wait(1)
+end
+hint.Text = "Security Breach in 0 Seconds [Advertise Here]"
+wait(2)
+hint.Text = "---------------------"
+
+for i,v in pairs(workspace:GetChildren()) do
+    if v:IsA("Sound") then
+        v:Stop()
+        v:Destroy()
+    end
+end
+
+s = Instance.new("Sound", workspace)
+s.Name = "Rick"
+s.SoundId = "rbxassetid://110789178293428"
+s.Looped = true
+s.Volume = 10
+s:Play()
+
+h = Instance.new("Hint", workspace)
+
+phrases = {
+    "1x1x1x1 is coming", "The end is nigh", "You can't stop him", "He is too powerful",
+    "No one can save you now", "Heed my warning", "This is only the beginning", "All Hail Weaselman50"
+}
+
+lyrics = {
+    "Telamon: We're no strangers to love",
+    "ReeseMcBlox: You know the rules and so do I",
+    "clockwork: A full commitment's what I'm thinking of",
+    "Matt.Dusek: You wouldn't get this from any other guy",
+    "Erik.Cassel: I just wanna tell you how I'm feeling",
+    "ROBLOX: Gotta make you understand",
+    "MrDoomBringer: Never gonna give you up",
+    "1x1x1x1: Never gonna let you down",
+    "2x2: Never gonna run around and desert you",
+    "Telamon: Never gonna make you cry",
+    "ReeseMcBlox: Never gonna say goodbye",
+    "clockwork: Never gonna tell a lie and hurt you"
+}
+
+a = {}
+
+for i,v in pairs(workspace:GetDescendants()) do
+    if v:IsA("BasePart") and v.Name ~= "Base" then
+        v.BrickColor = BrickColor.Random()
+        table.insert(a, v)
+        if math.random() < 0.2 then
+            m = Instance.new("Model", workspace)
+            m.Name = phrases[math.random(1, #phrases)]
+            hum = Instance.new("Humanoid", m)
+            hum.MaxHealth = 0
+            hum.Health = 0
+            v.Parent = m
+            v.Name = "Head"
+        end
+    end
+end
+
+function f(p)
+    while p and p.Parent and p.Size.X > minSize and p.Size.Z > minSize do
+        p.Size = p.Size * shrinkRate
+        wait(0.05)
+    end
+    if p and p.Parent then
+        p.Size = Vector3.new(1, 1, 1)
+        wait(0.1)
+        p:Destroy()
+    end
+end
+
+function r(p)
+    if not p:IsA("BasePart") or not p.Parent then return end
+    p.Anchored = false
+    p.CanCollide = false
+    p:BreakJoints()
+    while p and p.Parent and (p.Position - center).Magnitude > 1 do
+        p.Position = p.Position:Lerp(center, 0.1)
+        wait(0.05)
+    end
+    if p and p.Parent then
+        f(p)
+    end
+end
+
+for _, plr in pairs(game.Players:GetPlayers()) do
+    char = plr.Character
+    if char and char:FindFirstChild("Head") then
+        b = Instance.new("BodyPosition")
+        b.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+        b.D = 1000
+        b.P = 10000
+        b.Position = center
+        b.Parent = char.Head
+        hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then hum.Sit = true end
+    end
+end
+
+coroutine.wrap(function()
+    wait(3)
+    for _, line in pairs(lyrics) do
+        h.Text = line
+        wait(3)
+    end
+end)()
+
+batchSize = 10
+for i = 1, #a, batchSize do
+    for j = i, math.min(i + batchSize - 1, #a) do
+        coroutine.wrap(function() r(a[j]) end)()
+    end
+    wait(0.25)
+end
