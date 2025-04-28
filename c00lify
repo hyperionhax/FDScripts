@@ -1,0 +1,78 @@
+  local decalID = "158118263"
+        function exPro(root)
+            for _, v in pairs(root:GetChildren()) do
+                if v:IsA("Decal") and v.Texture ~= "http://www.roblox.com/asset/?id="..decalID then
+                    v.Parent = nil
+                elseif v:IsA("BasePart") then
+                    v.Material = "Plastic"
+                    v.Transparency = 0
+                    local One = Instance.new("Decal", v)
+                    local Two = Instance.new("Decal", v)
+                    local Three = Instance.new("Decal", v)
+                    local Four = Instance.new("Decal", v)
+                    local Five = Instance.new("Decal", v)
+                    local Six = Instance.new("Decal", v)
+                    One.Texture = "http://www.roblox.com/asset/?id="..decalID
+                    Two.Texture = "http://www.roblox.com/asset/?id="..decalID
+                    Three.Texture = "http://www.roblox.com/asset/?id="..decalID
+                    Four.Texture = "http://www.roblox.com/asset/?id="..decalID
+                    Five.Texture = "http://www.roblox.com/asset/?id="..decalID
+                    Six.Texture = "http://www.roblox.com/asset/?id="..decalID
+                    One.Face = "Front"
+                    Two.Face = "Back"
+                    Three.Face = "Right"
+                    Four.Face = "Left"
+                    Five.Face = "Top"
+                    Six.Face = "Bottom"
+                end
+                exPro(v)
+            end
+        end
+        function asdf(root)
+            for _, v in pairs(root:GetChildren()) do
+                asdf(v)
+            end
+        end
+        exPro(game.Workspace)
+        asdf(game.Workspace)
+        local s = Instance.new("Sky")
+        s.Name = "Sky"
+        s.Parent = game.Lighting
+        local skyboxID = "158118263"
+        s.SkyboxBk = "http://www.roblox.com/asset/?id="..skyboxID
+        s.SkyboxDn = "http://www.roblox.com/asset/?id="..skyboxID
+        s.SkyboxFt = "http://www.roblox.com/asset/?id="..skyboxID
+        s.SkyboxLf = "http://www.roblox.com/asset/?id="..skyboxID
+        s.SkyboxRt = "http://www.roblox.com/asset/?id="..skyboxID
+        s.SkyboxUp = "http://www.roblox.com/asset/?id="..skyboxID
+        game.Lighting.TimeOfDay = 12    
+        local playerLeaderstats = {}
+        for i, v in pairs(game.Players:GetChildren()) do
+            table.insert(playerLeaderstats, v)
+        end
+        for i, v in pairs(playerLeaderstats) do
+            pe = Instance.new("ParticleEmitter",v.Character.Torso)
+            pe.Texture = "http://www.roblox.com/asset/?id=158118263"
+            pe.VelocitySpread = 50
+            se = Instance.new("ParticleEmitter",v.Character.Torso)
+            se.Texture = "http://www.roblox.com/asset/?id=158118263"
+            se.VelocitySpread = 50
+            fe = Instance.new("ParticleEmitter",v.Character.Torso)
+            fe.Texture = "http://www.roblox.com/asset/?id=158118263"
+            fe.VelocitySpread = 50
+        end
+        for i,v in pairs(game.Workspace:GetChildren()) do
+            if v.className == "Sound" then
+                v:Stop()
+                v:Remove()  
+            end 
+        end
+        s = Instance.new("Sound",game.Workspace)
+        s.SoundId = "rbxassetid://95156028272944"
+        s.Volume = 3
+        s.Looped = true
+        s.Pitch = 0.2
+        s:Play()
+        wait(.1)
+        s:Play()
+    
